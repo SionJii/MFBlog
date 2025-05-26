@@ -31,7 +31,7 @@
 
 1. 저장소 클론
 ```bash
-git clone https://github.com/jww01/MFBlog.git
+git clone https://github.com/SionJii/MFBlog.git
 cd MFBlog
 ```
 
@@ -58,7 +58,7 @@ GitHub Pages를 통한 배포:
 npm run deploy
 ```
 
-배포된 사이트: [https://jww01.github.io/MFBlog](https://jww01.github.io/MFBlog)
+배포된 사이트: [https://SionJii.github.io/MFBlog](https://SionJii.github.io/MFBlog)
 
 ## 프로젝트 구조
 

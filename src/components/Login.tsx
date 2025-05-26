@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +18,9 @@ const Login = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // 로그인 성공 후 이전 페이지로 리다이렉트
+      const from = location.state?.from?.pathname || '/posts';
+      navigate(from, { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');

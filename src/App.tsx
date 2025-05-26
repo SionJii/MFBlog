@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import About from './pages/About'
 import NewPost from './pages/NewPost'
@@ -13,6 +13,18 @@ import type { User } from 'firebase/auth'
 import { getUserProfile } from './firebase/users'
 import type { UserProfile } from './firebase/users'
 import SetNickname from './components/SetNickname'
+
+// 로그인이 필요한 페이지를 위한 보호된 라우트 컴포넌트
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = auth.currentUser;
+  const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -115,8 +127,16 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/posts" element={<Posts />} />
           <Route path="/post/:id" element={<PostDetail />} />
-          <Route path="/new" element={<NewPost />} />
-          <Route path="/edit/:id" element={<EditPost />} />
+          <Route path="/new" element={
+            <ProtectedRoute>
+              <NewPost />
+            </ProtectedRoute>
+          } />
+          <Route path="/edit/:id" element={
+            <ProtectedRoute>
+              <EditPost />
+            </ProtectedRoute>
+          } />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/set-nickname" element={<SetNicknamePage />} />

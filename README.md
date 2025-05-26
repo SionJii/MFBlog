@@ -1,54 +1,77 @@
-# React + TypeScript + Vite
+# MFBlog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+개인 블로그 프로젝트입니다. React와 Firebase를 사용하여 구현되었으며, GitHub Pages를 통해 배포됩니다.
 
-Currently, two official plugins are available:
+## 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 Firebase Authentication을 통한 사용자 인증
+- 📝 마크다운 에디터를 활용한 포스트 작성
+- 🏷️ 카테고리별 포스트 분류
+- 🔍 포스트 검색 기능
+- 📱 반응형 디자인
 
-## Expanding the ESLint configuration
+## 기술 스택
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 18
+- TypeScript
+- Firebase (Authentication, Firestore)
+- Tailwind CSS
+- React Router
+- MDEditor
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 시작하기
+
+### 필수 조건
+
+- Node.js 16.0.0 이상
+- npm 또는 yarn
+- Firebase 프로젝트
+
+### 설치
+
+1. 저장소 클론
+```bash
+git clone https://github.com/jww01/MFBlog.git
+cd MFBlog
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. 의존성 설치
+```bash
+npm install
 ```
+
+3. Firebase 설정
+- Firebase 콘솔에서 새 프로젝트 생성
+- Authentication과 Firestore 설정
+- `.env` 파일 생성 후 Firebase 설정 정보 입력
+
+4. 개발 서버 실행
+```bash
+npm run dev
+```
+
+## 배포
+
+GitHub Pages를 통한 배포:
+
+```bash
+npm run deploy
+```
+
+배포된 사이트: [https://jww01.github.io/MFBlog](https://jww01.github.io/MFBlog)
+
+## 프로젝트 구조
+
+```
+src/
+├── components/     # 재사용 가능한 컴포넌트
+├── pages/         # 페이지 컴포넌트
+├── firebase/      # Firebase 관련 설정 및 함수
+├── types/         # TypeScript 타입 정의
+├── constants/     # 상수 정의
+└── utils/         # 유틸리티 함수
+```
+
+## 라이선스
+
+MIT License

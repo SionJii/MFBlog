@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import { getAllPosts, getPostsByCategory } from '../firebase/posts';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getPosts } from '../firebase/posts';
 import type { Post } from '../types/post';
 import BlogPost from './BlogPost';
 import LoadingSpinner from './common/LoadingSpinner';
 import ErrorMessage from './common/ErrorMessage';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PostListProps {
   selectedCategory?: string;
@@ -15,74 +17,84 @@ const PostList = ({ selectedCategory, searchQuery = '', limit }: PostListProps) 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // 게시물 데이터 가져오기
+  const fetchPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedPosts = await getPosts();
+      setPosts(fetchedPosts);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError('게시물을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const fetchedPosts = selectedCategory
-          ? await getPostsByCategory(selectedCategory)
-          : await getAllPosts();
-        setPosts(fetchedPosts);
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        setError('게시물을 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPosts();
-  }, [selectedCategory]);
+  }, [fetchPosts, selectedCategory]);
+
+  // 게시물 필터링 및 정렬
+  const filteredPosts = useMemo(() => {
+    return posts
+      .filter(post => {
+        const matchesCategory = !selectedCategory || post.category === selectedCategory;
+        const matchesSearch = !searchQuery || 
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.author.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }, [posts, selectedCategory, searchQuery, limit]);
+
+  // 새 게시물 작성 페이지로 이동
+  const handleNewPost = useCallback(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    navigate('/new-post');
+  }, [navigate, user]);
 
   if (loading) {
-    return <LoadingSpinner size="lg" className="min-h-[200px]" />;
+    return <LoadingSpinner size="lg" className="min-h-[400px]" />;
   }
 
   if (error) {
     return (
       <ErrorMessage
         message={error}
-        onRetry={selectedCategory ? () => window.location.href = '/posts' : undefined}
-        className="min-h-[200px]"
+        onRetry={fetchPosts}
+        className="min-h-[400px]"
       />
     );
   }
 
-  const filteredPosts = posts
-    .filter(post => {
-      if (!searchQuery) return true;
-      const query = searchQuery.toLowerCase();
-      return (
-        post.title.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query) ||
-        post.author.toLowerCase().includes(query)
-      );
-    })
-    .slice(0, limit);
-
   if (filteredPosts.length === 0) {
     return (
-      <div className="text-center p-8 min-w-[600px]">
-        <p className="text-gray-600">게시물이 없습니다.</p>
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">게시물이 없습니다.</p>
+        <button
+          onClick={handleNewPost}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          첫 게시물 작성하기
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 min-w-[600px]">
-      {filteredPosts.map((post) => (
-        <BlogPost
-          key={post.id}
-          id={post.id}
-          title={post.title}
-          createdAt={post.createdAt || new Date()}
-          excerpt={post.excerpt}
-          author={post.author}
-          imageUrl={post.imageUrl}
-          category={post.category}
-        />
+    <div className="space-y-8">
+      {filteredPosts.map(post => (
+        <BlogPost key={post.id} post={post} />
       ))}
     </div>
   );

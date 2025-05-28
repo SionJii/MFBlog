@@ -1,4 +1,7 @@
-import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import PrivateRoute from './components/PrivateRoute'
+import ErrorBoundary from './components/common/ErrorBoundary'
 import Home from './pages/Home'
 import About from './pages/About'
 import NewPost from './pages/NewPost'
@@ -13,14 +16,14 @@ import type { User } from 'firebase/auth'
 import { getUserProfile } from './firebase/users'
 import type { UserProfile } from './firebase/users'
 import SetNickname from './components/SetNickname'
+import Header from './components/Header'
 
 // 로그인이 필요한 페이지를 위한 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = auth.currentUser;
-  const location = useLocation();
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <PrivateRoute />;
   }
 
   return <>{children}</>;
@@ -64,94 +67,40 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">MF Blog</h1>
-            <nav>
-              <ul className="flex items-center space-x-4">
-                <li>
-                  <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-                </li>
-                <li>
-                  <Link to="/posts" className="text-gray-600 hover:text-gray-900">게시물</Link>
-                </li>
-                <li>
-                  <Link to="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-                </li>
-                {user ? (
-                  <>
-                    <li>
-                      <Link 
-                        to="/new" 
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                      >
-                        글 작성
-                      </Link>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => auth.signOut()}
-                        className="text-gray-600 hover:text-gray-900"
-                      >
-                        로그아웃
-                      </button>
-                    </li>
-                    {userProfile && (
-                      <li className="text-gray-600">
-                        {userProfile.nickname}
-                      </li>
-                    )}
-                  </>
-                ) : (
-                  <li>
-                    <Link 
-                      to="/login" 
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      로그인
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
+    <ErrorBoundary>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <Header />
+          <main className="flex-1 flex flex-col bg-gray-50 pt-16">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/posts" element={<Posts />} />
+              <Route path="/post/:id" element={<PostDetail />} />
+              <Route path="/new" element={
+                <ProtectedRoute>
+                  <NewPost />
+                </ProtectedRoute>
+              } />
+              <Route path="/edit/:id" element={
+                <ProtectedRoute>
+                  <EditPost />
+                </ProtectedRoute>
+              } />
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/set-nickname" element={<SetNicknamePage />} />
+            </Routes>
+          </main>
+          <footer className="bg-white shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <p className="text-center text-gray-500 text-sm">
+                © 2024 MF Blog. All rights reserved.
+              </p>
+            </div>
+          </footer>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col bg-gray-50 pt-16">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/post/:id" element={<PostDetail />} />
-          <Route path="/new" element={
-            <ProtectedRoute>
-              <NewPost />
-            </ProtectedRoute>
-          } />
-          <Route path="/edit/:id" element={
-            <ProtectedRoute>
-              <EditPost />
-            </ProtectedRoute>
-          } />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/set-nickname" element={<SetNicknamePage />} />
-        </Routes>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-center text-gray-500 text-sm">
-            © 2024 MF Blog. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

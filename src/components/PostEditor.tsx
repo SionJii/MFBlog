@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { createPost, updatePost, uploadImage } from '../firebase/posts';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/config';
 import { CATEGORIES } from '../constants/categories';
-import type { Post } from '../types/post';
+import type { Post, CreatePostData, UpdatePostData } from '../types/post';
 import LoadingSpinner from './common/LoadingSpinner';
 import ErrorMessage from './common/ErrorMessage';
 
@@ -15,10 +15,13 @@ interface PostEditorProps {
 }
 
 const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) => {
-  const [title, setTitle] = useState(initialPost?.title || '');
-  const [content, setContent] = useState(initialPost?.content || '');
-  const [category, setCategory] = useState(initialPost?.category || CATEGORIES[0]);
-  const [imageUrl, setImageUrl] = useState(initialPost?.imageUrl || '');
+  const [formData, setFormData] = useState<CreatePostData>({
+    title: initialPost?.title || '',
+    content: initialPost?.content || '',
+    category: initialPost?.category || CATEGORIES[0],
+    imageUrl: initialPost?.imageUrl,
+    excerpt: initialPost?.excerpt || '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -26,10 +29,13 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
 
   useEffect(() => {
     if (initialPost) {
-      setTitle(initialPost.title);
-      setContent(initialPost.content);
-      setCategory(initialPost.category);
-      setImageUrl(initialPost.imageUrl || '');
+      setFormData({
+        title: initialPost.title,
+        content: initialPost.content,
+        category: initialPost.category,
+        imageUrl: initialPost.imageUrl,
+        excerpt: initialPost.excerpt,
+      });
     }
   }, [initialPost]);
 
@@ -37,7 +43,7 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
     try {
       setIsUploading(true);
       const url = await uploadImage(file);
-      setImageUrl(url);
+      setFormData(prev => ({ ...prev, imageUrl: url }));
       return url;
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -49,7 +55,7 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
   }, []);
 
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
+    if (!formData.title.trim() || !formData.content.trim()) {
       setError('제목과 내용을 모두 입력해주세요.');
       return;
     }
@@ -64,23 +70,28 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
     setError(null);
 
     try {
-      const postData = {
-        title: title.trim(),
-        content: content.replace(/\n/g, '\n\n'),
-        category,
-        excerpt: content.slice(0, 150),
-        imageUrl: imageUrl || undefined
+      const postData: CreatePostData = {
+        ...formData,
+        title: formData.title.trim(),
+        excerpt: formData.content.slice(0, 150),
       };
 
       if (mode === 'edit' && initialPost) {
-        await updatePost(initialPost.id, postData);
+        const updateData: UpdatePostData = {
+          ...postData,
+          updatedAt: new Date(),
+        };
+        await updatePost(initialPost.id, updateData);
         if (onSave) {
           onSave(initialPost.id);
         } else {
           navigate(`/post/${initialPost.id}`);
         }
       } else {
-        const post = await createPost(postData);
+        const post = await createPost({
+          ...postData,
+          createdAt: new Date(),
+        });
         if (onSave) {
           onSave(post.id);
         } else {
@@ -98,6 +109,10 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
       setLoading(false);
     }
   };
+
+  const handleInputChange = useCallback((field: keyof CreatePostData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   if (loading) {
     return <LoadingSpinner size="lg" className="min-h-[400px]" />;
@@ -119,8 +134,8 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         <input
           type="text"
           id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={formData.title}
+          onChange={(e) => handleInputChange('title', e.target.value)}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="게시물 제목을 입력하세요"
         />
@@ -132,8 +147,8 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         </label>
         <select
           id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={formData.category}
+          onChange={(e) => handleInputChange('category', e.target.value)}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
           {CATEGORIES.map((cat) => (
@@ -149,15 +164,16 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
           대표 이미지
         </label>
         <div className="flex items-center space-x-4">
-          {imageUrl && (
+          {formData.imageUrl && (
             <div className="relative w-32 h-32">
               <img
-                src={imageUrl}
+                src={formData.imageUrl}
                 alt="대표 이미지"
                 className="w-full h-full object-cover rounded-lg"
+                loading="lazy"
               />
               <button
-                onClick={() => setImageUrl('')}
+                onClick={() => handleInputChange('imageUrl', '')}
                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,13 +214,14 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         </label>
         <div data-color-mode="light">
           <MDEditor
-            value={content}
-            onChange={(value) => setContent(value || '')}
+            value={formData.content}
+            onChange={(value) => handleInputChange('content', value || '')}
             height={400}
             preview="edit"
             enableScroll={true}
             textareaProps={{
               placeholder: '게시물 내용을 입력하세요',
+              style: { whiteSpace: 'pre' }
             }}
           />
         </div>

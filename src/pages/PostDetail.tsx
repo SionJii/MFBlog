@@ -6,6 +6,7 @@ import type { Post } from '../types/post';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import MDEditor from '@uiw/react-md-editor';
+import { optimizeImageUrl } from '../utils/imageUtils';
 
 const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -64,10 +65,11 @@ const PostDetail = () => {
   }
 
   const isAuthor = auth.currentUser?.uid === post.authorId;
+  const optimizedImageUrl = post.imageUrl ? optimizeImageUrl(post.imageUrl, 1200) : '';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <article className="prose lg:prose-xl mx-auto">
+    <div className="min-w-4xl max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 bg-white rounded-lg shadow-sm">
+      <article className="prose lg:prose-xl mx-auto p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
           <div className="flex items-center justify-between text-sm text-gray-500">
@@ -102,15 +104,20 @@ const PostDetail = () => {
         {post.imageUrl && (
           <div className="mb-8">
             <img
-              src={post.imageUrl}
+              src={optimizedImageUrl}
               alt={post.title}
               className="w-full h-64 object-cover rounded-lg"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         )}
 
-        <div data-color-mode="light" className="mb-8">
-          <MDEditor.Markdown source={post.content} />
+        <div data-color-mode="light" className="mb-8 prose prose-sm sm:prose-base lg:prose-lg max-w-none">
+          <MDEditor.Markdown 
+            source={post.content.replace(/\n/g, '<br>')} 
+            style={{ whiteSpace: 'pre-wrap' }}
+          />
         </div>
       </article>
     </div>

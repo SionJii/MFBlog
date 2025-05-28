@@ -66,7 +66,7 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
     try {
       const postData = {
         title: title.trim(),
-        content: content,
+        content: content.replace(/\n/g, '\n\n'),
         category,
         excerpt: content.slice(0, 150),
         imageUrl: imageUrl || undefined

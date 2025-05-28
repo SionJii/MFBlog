@@ -69,10 +69,7 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         content: content,
         category,
         excerpt: content.slice(0, 150),
-        imageUrl: imageUrl || undefined,
-        createdAt: new Date(),
-        author: user.displayName || '익명',
-        authorId: user.uid
+        imageUrl: imageUrl || undefined
       };
 
       if (mode === 'edit' && initialPost) {

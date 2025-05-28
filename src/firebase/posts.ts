@@ -75,8 +75,14 @@ export const updatePost = async (id: string, post: Partial<Post>) => {
       throw new Error('게시물을 수정할 권한이 없습니다.');
     }
 
+    // undefined 값을 null로 변환
+    const updateData = Object.entries(post).reduce((acc, [key, value]) => {
+      acc[key] = value === undefined ? null : value;
+      return acc;
+    }, {} as Record<string, any>);
+
     await updateDoc(postRef, {
-      ...post,
+      ...updateData,
       updatedAt: serverTimestamp(),
     });
   } catch (error) {

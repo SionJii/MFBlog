@@ -8,6 +8,7 @@ import NewPost from './pages/NewPost'
 import Posts from './pages/Posts'
 import PostDetail from './pages/PostDetail'
 import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
 import SetNicknamePage from './pages/SetNicknamePage'
 import EditPost from './pages/EditPost'
 import { useEffect, useState } from 'react'
@@ -88,6 +89,7 @@ const App = () => {
               } />
               <Route path="/about" element={<About />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="/set-nickname" element={<SetNicknamePage />} />
             </Routes>
           </main>

@@ -64,9 +64,9 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">MF Blog</h1>
@@ -122,7 +122,7 @@ const App = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow">
+      <main className="flex-1 flex flex-col bg-gray-50 pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/posts" element={<Posts />} />
@@ -144,7 +144,7 @@ const App = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white shadow-sm mt-auto">
+      <footer className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <p className="text-center text-gray-500 text-sm">
             © 2024 MF Blog. All rights reserved.

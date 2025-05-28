@@ -5,9 +5,10 @@ import { CATEGORIES } from '../constants/categories';
 interface SidebarProps {
   onCategorySelect: (category: string) => void;
   onSearch: (query: string) => void;
+  selectedCategory: string;
 }
 
-const Sidebar = ({ onCategorySelect, onSearch }: SidebarProps) => {
+const Sidebar = ({ onCategorySelect, onSearch, selectedCategory }: SidebarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const Sidebar = ({ onCategorySelect, onSearch }: SidebarProps) => {
           <button
             onClick={() => onCategorySelect('')}
             className={`w-full text-left px-3 py-2 rounded-md ${
-              !location.search.includes('category=')
+              !selectedCategory
                 ? 'bg-blue-50 text-blue-600'
                 : 'hover:bg-gray-50'
             }`}
@@ -53,7 +54,7 @@ const Sidebar = ({ onCategorySelect, onSearch }: SidebarProps) => {
               key={category}
               onClick={() => onCategorySelect(category)}
               className={`w-full text-left px-3 py-2 rounded-md ${
-                location.search.includes(`category=${category}`)
+                selectedCategory === category
                   ? 'bg-blue-50 text-blue-600'
                   : 'hover:bg-gray-50'
               }`}

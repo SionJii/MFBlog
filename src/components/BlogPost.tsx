@@ -1,17 +1,25 @@
 import { Link } from 'react-router-dom';
-import type { Post } from '../types/post';
+import type { FC } from 'react';
 
-interface BlogPostProps extends Post {}
+interface BlogPostProps {
+  id: string;
+  title: string;
+  createdAt: Date;
+  excerpt: string;
+  author: string;
+  imageUrl?: string;
+  category: string;
+}
 
-const BlogPost = ({
+const BlogPost: FC<BlogPostProps> = ({
   id,
   title,
-  date,
+  createdAt,
   excerpt,
   author,
   imageUrl,
   category
-}: BlogPostProps) => {
+}) => {
   return (
     <article className="bg-white shadow-sm rounded-lg overflow-hidden mb-8 hover:shadow-md transition-shadow">
       <Link to={`/post/${id}`} className="block">
@@ -30,7 +38,7 @@ const BlogPost = ({
               {category}
             </span>
             <span className="mx-2">•</span>
-            <time>{new Date(date).toLocaleString('ko-KR', {
+            <time>{new Date(createdAt).toLocaleString('ko-KR', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostList from '../components/PostList';
 import Sidebar from '../components/Sidebar';
@@ -20,6 +20,11 @@ const Posts = () => {
     setSearchQuery(query);
   };
 
+  // URL 파라미터가 변경될 때마다 검색어 초기화
+  useEffect(() => {
+    setSearchQuery('');
+  }, [searchParams]);
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex gap-8">
@@ -33,6 +38,7 @@ const Posts = () => {
           <Sidebar
             onCategorySelect={handleCategorySelect}
             onSearch={handleSearch}
+            selectedCategory={selectedCategory}
           />
         </div>
       </div>

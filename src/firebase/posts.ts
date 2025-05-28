@@ -18,7 +18,7 @@ import type { Post } from '../types/post';
 import { getUserProfile } from './users';
 
 // 게시물 생성
-export const createPost = async (post: Omit<Post, 'id' | 'date' | 'author' | 'authorId'>) => {
+export const createPost = async (post: Omit<Post, 'id' | 'author' | 'authorId'>) => {
   try {
     const user = auth.currentUser;
     if (!user) {
@@ -34,7 +34,6 @@ export const createPost = async (post: Omit<Post, 'id' | 'date' | 'author' | 'au
       ...post,
       author: userProfile.nickname,
       authorId: user.uid,
-      date: serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -46,7 +45,7 @@ export const createPost = async (post: Omit<Post, 'id' | 'date' | 'author' | 'au
       return {
         id: docSnap.id,
         ...data,
-        date: data.date?.toDate?.() || new Date(),
+        createdAt: data.createdAt?.toDate?.() || new Date(),
       } as Post;
     }
     throw new Error('게시물 생성 실패');
@@ -125,7 +124,7 @@ export const getPost = async (id: string) => {
         title: data.title,
         content: data.content,
         category: data.category,
-        date: data.date?.toDate?.() || new Date(),
+        createdAt: data.createdAt?.toDate?.() || new Date(),
         excerpt: data.excerpt,
         author: data.author,
         authorId: data.authorId,
@@ -143,7 +142,7 @@ export const getPost = async (id: string) => {
 export const getAllPosts = async (): Promise<Post[]> => {
   try {
     const postsRef = collection(db, 'posts');
-    const q = query(postsRef, orderBy('date', 'desc'));
+    const q = query(postsRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
     const posts = querySnapshot.docs.map(doc => {
@@ -153,9 +152,10 @@ export const getAllPosts = async (): Promise<Post[]> => {
         title: data.title,
         content: data.content,
         category: data.category,
-        date: data.date?.toDate?.() || new Date(),
+        createdAt: data.createdAt?.toDate?.() || new Date(),
         excerpt: data.excerpt,
         author: data.author,
+        authorId: data.authorId,
         imageUrl: data.imageUrl,
       } as Post;
     });
@@ -171,11 +171,21 @@ export const getAllPosts = async (): Promise<Post[]> => {
 export const getPostsByCategory = async (category: string): Promise<Post[]> => {
   try {
     const postsRef = collection(db, 'posts');
-    const q = query(
-      postsRef,
-      where('category', '==', category),
-      orderBy('date', 'desc')
-    );
+    let q;
+    
+    if (category && category !== '') {
+      q = query(
+        postsRef,
+        where('category', '==', category),
+        orderBy('createdAt', 'desc')
+      );
+    } else {
+      q = query(
+        postsRef,
+        orderBy('createdAt', 'desc')
+      );
+    }
+    
     const querySnapshot = await getDocs(q);
     
     const posts = querySnapshot.docs.map(doc => {
@@ -185,9 +195,10 @@ export const getPostsByCategory = async (category: string): Promise<Post[]> => {
         title: data.title,
         content: data.content,
         category: data.category,
-        date: data.date?.toDate?.() || new Date(),
+        createdAt: data.createdAt?.toDate?.() || new Date(),
         excerpt: data.excerpt,
         author: data.author,
+        authorId: data.authorId,
         imageUrl: data.imageUrl,
       } as Post;
     });

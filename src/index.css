@@ -1,1 +1,59 @@
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기본 스크롤바 스타일 */
+html {
+  overflow-y: scroll;
+}
+
+/* Webkit 브라우저용 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Firefox용 스크롤바 스타일 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f1f1;
+}
+
+/* 본문 영역 스크롤바 스타일 */
+.prose {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f1f1;
+}
+
+.prose::-webkit-scrollbar {
+  width: 6px;
+}
+
+.prose::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.prose::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.prose::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}

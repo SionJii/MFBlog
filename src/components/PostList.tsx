@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { getAllPosts, getPostsByCategory } from '../firebase/posts';
 import type { Post } from '../types/post';
 import BlogPost from './BlogPost';
@@ -78,7 +77,7 @@ const PostList = ({ selectedCategory, searchQuery = '', limit }: PostListProps) 
           key={post.id}
           id={post.id}
           title={post.title}
-          createdAt={post.createdAt}
+          createdAt={post.createdAt || new Date()}
           excerpt={post.excerpt}
           author={post.author}
           imageUrl={post.imageUrl}

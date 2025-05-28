@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../constants/categories';
 
 interface SidebarProps {
@@ -10,7 +10,6 @@ interface SidebarProps {
 
 const Sidebar = ({ onCategorySelect, onSearch, selectedCategory }: SidebarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const location = useLocation();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {

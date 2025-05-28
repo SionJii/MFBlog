@@ -11,7 +11,6 @@ import {
   orderBy,
   serverTimestamp,
 } from 'firebase/firestore';
-import type { DocumentData } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from './config';
 import type { Post } from '../types/post';

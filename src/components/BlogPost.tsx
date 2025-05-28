@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { FC } from 'react';
+import MDEditor from '@uiw/react-md-editor';
 
 interface BlogPostProps {
   id: string;
@@ -11,7 +11,7 @@ interface BlogPostProps {
   category: string;
 }
 
-const BlogPost: FC<BlogPostProps> = ({
+const BlogPost = ({
   id,
   title,
   createdAt,
@@ -19,44 +19,40 @@ const BlogPost: FC<BlogPostProps> = ({
   author,
   imageUrl,
   category
-}) => {
+}: BlogPostProps) => {
   return (
-    <article className="bg-white shadow-sm rounded-lg overflow-hidden mb-8 hover:shadow-md transition-shadow">
-      <Link to={`/post/${id}`} className="block">
-        {imageUrl && (
-          <div className="aspect-video w-full overflow-hidden">
-            <img
-              src={imageUrl}
-              alt={title}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-        )}
-        <div className="p-6">
-          <div className="flex items-center text-sm text-gray-500 mb-2">
-            <span className="bg-gray-100 px-3 py-1 rounded-full">
-              {category}
-            </span>
-            <span className="mx-2">•</span>
-            <time>{new Date(createdAt).toLocaleString('ko-KR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</time>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 hover:text-blue-600">
+    <article className="bg-white rounded-lg shadow-sm overflow-hidden mb-8 hover:shadow-md transition-shadow">
+      {imageUrl && (
+        <div className="aspect-video w-full overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+      )}
+      <div className="p-6">
+        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+          <span>{author}</span>
+          <span className="text-gray-300">•</span>
+          <time dateTime={createdAt.toISOString()}>
+            {createdAt.toLocaleDateString()}
+          </time>
+          <span className="text-gray-300">•</span>
+          <span>{category}</span>
+        </div>
+        <Link to={`/post/${id}`} className="block">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 hover:text-blue-600">
             {title}
           </h2>
-          <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
-            {excerpt}
-          </p>
-          <div className="flex items-center text-sm text-gray-500">
-            <span className="font-medium">{author}</span>
+        </Link>
+        <div className="prose prose-sm max-w-none text-gray-600 relative">
+          <div data-color-mode="light" className="line-clamp-3">
+            <MDEditor.Markdown source={excerpt} />
           </div>
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
         </div>
-      </Link>
+      </div>
     </article>
   );
 };

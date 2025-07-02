@@ -1,10 +1,11 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { createPost, updatePost, uploadImage } from '../firebase/posts';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/config';
 import { CATEGORIES } from '../constants/categories';
 import type { Post, CreatePostData, UpdatePostData } from '../types/post';
+import type { Category } from '../constants/categories';
 import LoadingSpinner from './common/LoadingSpinner';
 import ErrorMessage from './common/ErrorMessage';
 
@@ -14,11 +15,18 @@ interface PostEditorProps {
   mode?: 'create' | 'edit';
 }
 
+const categoryLabelMap: Record<string, string> = {
+  일상: '일상',
+  게임: '게임',
+  취미: '취미',
+  프로젝트: '프로젝트',
+};
+
 const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) => {
   const [formData, setFormData] = useState<CreatePostData>({
     title: initialPost?.title || '',
     content: initialPost?.content || '',
-    category: initialPost?.category || CATEGORIES[0],
+    category: (initialPost?.category as Category) || CATEGORIES[0],
     imageUrl: initialPost?.imageUrl,
     excerpt: initialPost?.excerpt || '',
   });
@@ -74,6 +82,7 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         ...formData,
         title: formData.title.trim(),
         excerpt: formData.content.slice(0, 150),
+        imageUrl: formData.imageUrl || '', // undefined 방지
       };
 
       if (mode === 'edit' && initialPost) {
@@ -148,12 +157,12 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
         <select
           id="category"
           value={formData.category}
-          onChange={(e) => handleInputChange('category', e.target.value)}
+          onChange={(e) => handleInputChange('category', e.target.value as Category)}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
           {CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>
-              {cat}
+              {categoryLabelMap[cat] || cat}
             </option>
           ))}
         </select>
@@ -240,4 +249,4 @@ const PostEditor = ({ onSave, initialPost, mode = 'create' }: PostEditorProps) =
   );
 };
 
-export default PostEditor; 
+export default PostEditor;

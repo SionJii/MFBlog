@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PostEditor from '../components/PostEditor';
 import { getPost, updatePost } from '../firebase/posts';
 import type { Post } from '../types/post';
+import type { Category } from '../constants/categories';
 
 const EditPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,4 +74,4 @@ const EditPost = () => {
   );
 };
 
-export default EditPost; 
+export default EditPost;

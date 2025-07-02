@@ -1,3 +1,5 @@
+import type { Category } from '../constants/categories';
+
 export interface Post {
   id: string;
   title: string;
@@ -5,7 +7,7 @@ export interface Post {
   excerpt: string;
   author: string;
   authorId: string;
-  category: string;
+  category: Category;
   imageUrl?: string;
   createdAt: Date;
   updatedAt?: Date;
@@ -20,9 +22,9 @@ export type UpdatePostData = Partial<Omit<Post, 'id' | 'author' | 'authorId'>>;
 export interface PostFormData {
   title: string;
   content: string;
-  category: string;
+  category: Category;
   imageUrl?: string;
   excerpt: string;
   createdAt?: Date;
   updatedAt?: Date;
-} 
+}

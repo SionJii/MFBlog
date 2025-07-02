@@ -15,14 +15,20 @@ import {
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage, auth } from './config';
 import type { Post, CreatePostData, UpdatePostData } from '../types/post';
+import type { Category } from '../constants/categories';
 import { getUserProfile } from './users';
 
 const postsCollection = collection(db, 'posts');
 
-// 게시물 목록 가져오기
-export const getPosts = async (): Promise<Post[]> => {
+// 게시물 목록 가져오기 (카테고리별 서버 필터링 지원)
+export const getPosts = async (category?: Category): Promise<Post[]> => {
   try {
-    const q = query(postsCollection, orderBy('createdAt', 'desc'));
+    let q;
+    if (category) {
+      q = query(postsCollection, where('category', '==', category), orderBy('createdAt', 'desc'));
+    } else {
+      q = query(postsCollection, orderBy('createdAt', 'desc'));
+    }
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -77,6 +83,8 @@ export const createPost = async (postData: CreatePostData): Promise<Post> => {
       author: userProfile.nickname,
       authorId: user.uid,
       createdAt: serverTimestamp(),
+      category: postData.category as Category,
+      imageUrl: postData.imageUrl ?? '', // undefined 방지
     };
 
     const docRef = await addDoc(postsCollection, newPost);
@@ -194,12 +202,12 @@ export const getAllPosts = async (): Promise<Post[]> => {
 };
 
 // 카테고리별 게시물 가져오기
-export const getPostsByCategory = async (category: string): Promise<Post[]> => {
+export const getPostsByCategory = async (category: Category): Promise<Post[]> => {
   try {
     const postsRef = collection(db, 'posts');
     let q;
     
-    if (category && category !== '') {
+    if (category) {
       q = query(
         postsRef,
         where('category', '==', category),
@@ -234,4 +242,4 @@ export const getPostsByCategory = async (category: string): Promise<Post[]> => {
     console.error('Error getting posts by category:', error);
     throw error;
   }
-}; 
+};

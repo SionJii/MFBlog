@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPosts } from '../firebase/posts';
 import type { Post } from '../types/post';
+import type { Category } from '../constants/categories';
 import BlogPost from './BlogPost';
 import LoadingSpinner from './common/LoadingSpinner';
 import ErrorMessage from './common/ErrorMessage';
@@ -25,7 +26,8 @@ const PostList = ({ selectedCategory, searchQuery = '', limit }: PostListProps) 
     try {
       setLoading(true);
       setError(null);
-      const fetchedPosts = await getPosts();
+      // 카테고리 값이 있으면 서버 필터링, 없으면 전체
+      const fetchedPosts = await getPosts(selectedCategory as Category | undefined);
       setPosts(fetchedPosts);
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -33,26 +35,25 @@ const PostList = ({ selectedCategory, searchQuery = '', limit }: PostListProps) 
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedCategory]);
 
   useEffect(() => {
     fetchPosts();
-  }, [fetchPosts, selectedCategory]);
+  }, [fetchPosts]);
 
-  // 게시물 필터링 및 정렬
+  // 게시물 필터링 및 정렬 (검색어만 클라이언트 필터)
   const filteredPosts = useMemo(() => {
     return posts
       .filter(post => {
-        const matchesCategory = !selectedCategory || post.category === selectedCategory;
         const matchesSearch = !searchQuery || 
           post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
           post.author.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+        return matchesSearch;
       })
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, limit);
-  }, [posts, selectedCategory, searchQuery, limit]);
+  }, [posts, searchQuery, limit]);
 
   // 새 게시물 작성 페이지로 이동
   const handleNewPost = useCallback(() => {
@@ -100,4 +101,4 @@ const PostList = ({ selectedCategory, searchQuery = '', limit }: PostListProps) 
   );
 };
 
-export default PostList; 
+export default PostList;

@@ -5,7 +5,8 @@ import { auth } from '../firebase/config';
 import type { Post } from '../types/post';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
-import MDEditor from '@uiw/react-md-editor';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { optimizeImageUrl } from '../utils/imageUtils';
 
 const PostDetail = () => {
@@ -68,8 +69,8 @@ const PostDetail = () => {
   const optimizedImageUrl = post.imageUrl ? optimizeImageUrl(post.imageUrl, 1200) : '';
 
   return (
-    <div className="min-w-4xl max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 bg-white rounded-lg shadow-sm">
-      <article className="prose lg:prose-xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 mb-8 bg-white rounded-lg shadow-sm">
+      <article className="max-w-none p-4 sm:p-6 lg:p-8 w-full">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
           <div className="flex items-center justify-between text-sm text-gray-500">
@@ -113,10 +114,15 @@ const PostDetail = () => {
           </div>
         )}
 
-        <div data-color-mode="light" className="mb-8 prose prose-sm sm:prose-base lg:prose-lg max-w-none">
-          <MDEditor.Markdown 
-            source={post.content.replace(/\n/g, '<br>')} 
-            style={{ whiteSpace: 'pre-wrap' }}
+        <div data-color-mode="light" className="mb-8 max-w-none w-full overflow-x-auto p-0 m-0">
+          <ReactMarkdown 
+            children={post.content} 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              // Apply prose classes to the root element rendered by ReactMarkdown
+              // This is a common workaround for applying prose styles with ReactMarkdown
+              wrapper: ({ children }) => <div className="prose lg:prose-xl max-w-none">{children}</div>,
+            }}
           />
         </div>
       </article>

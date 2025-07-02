@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import MDEditor from '@uiw/react-md-editor';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { formatDate } from '../utils/dateUtils';
 import type { Post } from '../types/post';
 
@@ -35,13 +36,10 @@ const BlogPost = memo(({ post }: BlogPostProps) => {
           </div>
           <h2 className="text-xl font-bold mb-2 line-clamp-2">{title}</h2>
           <div className="text-gray-600 mb-4 relative">
-            <div className="line-clamp-3 prose prose-sm max-w-none prose-gray">
-              <MDEditor.Markdown 
-                source={excerpt.replace(/\n/g, '<br>')} 
-                style={{ 
-                  backgroundColor: 'transparent',
-                  color: '#4B5563'
-                }}
+            <div className="line-clamp-3 relative">
+              <ReactMarkdown 
+                children={excerpt} 
+                remarkPlugins={[remarkGfm]}
               />
             </div>
             {hasMoreThanThreeLines && (
